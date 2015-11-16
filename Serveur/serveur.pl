@@ -21,89 +21,93 @@ my $printmenu = "Menu\n
 
 
 
-print "Avant main";
+print "Avant main\n";
 &main;
 
 
 
 sub checkuservalidity
 {
+	print "Begin checkuservalidity\n";
 	my $username = $_[0];
 	my $cipheredpassword = $_[1];
 	open(my $fh, '<:encoding(UTF-8)', "$userconfigfilepath$username/config.txt")
   		or die return false;
 
 	my $firstline = <$fh>;
-	return ($firstline eq cipheredpassword)
+	print "End checkuservalidity\n";
+	$firstline eq cipheredpassword;
 }
 
 
 
 sub stringcontains
 {
-	print "stringcontains";
+	print "Begin stringcontains\n";
 	my $mystring = $_[0];
 	my $searchedtext = $_[1];
 
-	return ($mystring =~ /$searchedtext/);
+	print "End stringcontains\n";
+	$mystring =~ /$searchedtext/;
 }
 
 sub askclientidentification
 {
-	print "askclientidentification";
+	print "Begin askclientidentification\n";
+	my $clientconnection = $_[0];
 	my $username = "";
 	my $cipheredpassword = "";
 	my $successfulidentification;
 	
-	print $connection "Veuillez vous identifier\n";
-	print $connection "Nom d'utilisateur: \n";
-	chomp($username = <$connection>);
-	print $connection "Mot de passe: \n";
-	chomp($cipheredpassword = <$connection>);
-	
-	return &checkuservalidity($username, $cipheredpassword);
+	print $clientconnection "Veuillez vous identifier\n";
+	print $clientconnection "Nom d'utilisateur: \n";
+	chomp($username = <$clientconnection>);
+	print $clientconnection "Mot de passe: \n";
+	chomp($cipheredpassword = <$clientconnection>);
+
+	print "End askclientidentification\n";
+	&checkuservalidity($username, $cipheredpassword);
 }
 
 sub startserveur
 {
-	print "startserveur";
+	print "Begin startserveur\n";
 	my $port = $_[0];
-
 	$serveur = IO::Socket::INET->new( Proto => $protocole,
 	LocalPort => $port,
 	Listen => SOMAXCONN,
 	Reuse => 1)
 	or die "Impossible de se connecter sur le port $port en localhost";
-	return $serveur;
+	print "End startserveur\n";
+	$serveur;
 }
 
 sub main
 {
-	print "main";
+	print "Begin main\n";
   	my $server = &startserveur($port);
-
-	while (my $connection = $serveur->accept())
-	{
-		print $connection "TP4 - Serveur de courriels\n";
-		while($input ne "quit\r\n")
-		{
-			
-
-		}
-		close($connection);
-	}
-
+#	while (my $connection = $serveur->accept())
+#	{
+#		print $connection "TP4 - Serveur de courriels\n";
+#		while($input ne "quit\r\n")
+#		{
+#			
+#
+#		}
+#		close($connection);
+#	}
+#
   	while (my $connection = $serveur->accept())
 	{
 		my $desirequitter = false;
-		if (askclientidentification)
+		if (&askclientidentification(connection))
 		{
-			while (desirequitter eq false)
+			while ($desirequitter eq false)
 			{
-				print $printmenu;
+				print $connection $printmenu;
 				chomp($input = <$connection>);
-				print $input;
-				print $connection "Merci ~serveur\n";
+				#print $input;
+				#print $connection "Merci ~serveur\n";
 			}
 		}
 	}

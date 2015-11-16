@@ -26,19 +26,19 @@ while ($ligne ne "quit\n")
 	{
 		print "Veuillez entrer votre nom d'utilisateur:\n";
 		$username = <STDIN>; 
-		print $connection $username;
-		$input = <$connection>;
-		print $input;
+		#$input = <$connection>;
+		#print $input;
 	}
+	print $connection $username;
 
 	while($password eq "")
 	{
 		print "Veuillez entrer votre mot de passe:\n";
 		$password = <STDIN>;
-		print $connection $password;
-		$input = <$connection>;
-		print $input;
+		#$input = <$connection>;
+		#print $input;
 	}
+	print $connection $password;
 
 	while($choice < 1 || $choice > 5)
 	{
@@ -51,7 +51,7 @@ while ($ligne ne "quit\n")
 	if ($choice == 1)
 	{
 		#Choix 1 
-		print "choix 1"
+		print "choix 1";
 		print "Quelle est l'adresse de destination:\n";
 		my $destAdr = <STDIN>;
 		print "Quelle est l'adresse en copie conforme:\n";
@@ -64,7 +64,7 @@ while ($ligne ne "quit\n")
 	elsif ($choice == 2)
 	{
 		#Choix 2 
-		print "choix 2"
+		print "choix 2";
 		print "Quel numero:\n";
 		my $number = <STDIN>;
 	}
