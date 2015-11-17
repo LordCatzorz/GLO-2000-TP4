@@ -100,7 +100,7 @@ sub main
   	while (my $connection = $serveur->accept())
 	{
 		my $desirequitter = false;
-		if (&askclientidentification(connection))
+		if (&askclientidentification($connection))
 		{
 			while ($desirequitter eq false)
 			{
