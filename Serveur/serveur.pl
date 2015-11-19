@@ -82,11 +82,16 @@ sub checkuservalidity
 	my $firstline = <$fh>;
 	close $fh;
 	print "$firstline\n";
+	my $hashpassword = md5_hex($cipheredpassword);
+	print $hashpassword;
 
 	print "End checkuservalidity\n";
 
-	#$firstline eq cipheredpassword;
-	return 1;
+	if ($firstline eq uc($hashpassword))
+	{
+		return 1;
+	}
+	return 0;
 
 }
 
