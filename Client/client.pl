@@ -80,8 +80,7 @@ or die "Impossible de se connecter sur le port $port à l'adresse $host";
 	$connection->send($hashpassword);
 
 	$connection->recv($input, 1024);
-	
-	if ($input == "OK")
+	if ($input eq "OK")
 	{
 		$connection->recv($input, 1024);
 		print "$input\n";
