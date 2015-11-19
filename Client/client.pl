@@ -22,7 +22,7 @@ my $proto = "tcp";
 
 my $host = "localhost";
 
-my $port = 2558;
+my $port = 2559;
 
 my $input = "";
 
@@ -75,8 +75,10 @@ while ($ligne ne "quit\n")
 		$password = <STDIN>;
 
 	}
+	print md5_hex($password);
+	my $hashpassword = md5_hex($password);
 
-	print $connection $password;
+	print $connection $hashpassword;
 	$input = <$connection>;
 
 	print $input;
@@ -92,8 +94,7 @@ while ($ligne ne "quit\n")
 		$choice = <STDIN>;
 
 		chomp($choice);
-
-		print $choice;
+		print $connection $choice;
 
 	}
 
@@ -103,35 +104,31 @@ while ($ligne ne "quit\n")
 
 	{
 
-		#Choix 1 
-
-		print "choix 1";
-
 		print "Quelle est l'adresse de destination:\n";
 
 		my $destAdr = <STDIN>;
+		#print $connection $destAdr;
 
 		print "Quelle est l'adresse en copie conforme:\n";
 
 		my $ccAdr = <STDIN>;
+		#print $connection $ccAdr;
 
 		print "Quel est le sujet:\n";
 
 		my $subject = <STDIN>;
+		#print $connection $subject;
 
 		print "Quel est le corps du message:\n";
 
 		my $body = <STDIN>;
+		#print $connection $body
 
 	} 
 
 	elsif ($choice == 2)
 
 	{
-
-		#Choix 2 
-
-		print "choix 2";
 
 		print "Quel numero:\n";
 
@@ -143,19 +140,11 @@ while ($ligne ne "quit\n")
 
 	{
 
-		#Choix 3 
-
-		print "choix 3"
-
 	}
 
 	elsif ($choice == 4)
 
 	{
-
-		#Choix 4
-
-		print "choix 4"
 
 	}
 

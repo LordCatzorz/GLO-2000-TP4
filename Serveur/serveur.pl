@@ -6,7 +6,7 @@
 
 use IO::Socket;
 
-use Digest::MD5 qw(md5_hex);
+#use Digest::MD5 qw(md5_hex);
 
 use MIME::Lite;
 use File::Basename qw();
@@ -17,7 +17,7 @@ use File::Basename qw();
 
 my $protocole = "tcp";
 
-my $port = 2558;
+my $port = 2559;
 
 my $input = "";
 
@@ -81,13 +81,10 @@ sub checkuservalidity
 
 	my $firstline = <$fh>;
 	close $fh;
-	print "$firstline\n";
-	my $hashpassword = md5_hex($cipheredpassword);
-	print $hashpassword;
 
 	print "End checkuservalidity\n";
 
-	if ($firstline eq uc($hashpassword))
+	if ($firstline eq uc($cipheredpassword))
 	{
 		return 1;
 	}
@@ -147,8 +144,6 @@ sub askclientidentification
 
 	chomp($cipheredpassword = <$clientconnection>);
 
-
-
 	print "End askclientidentification\n";
 
 	return &checkuservalidity($username, $cipheredpassword);
@@ -201,14 +196,28 @@ sub main
 
 		{
 			print $connection "Authentification reussie\n";
+			print "recevoir choix";
+
+			chomp($input = <$connection>);
+			print "$input";
 
 			while ($desirequitter eq false)
 
 			{
 
-				print $connection $printmenu;
+				#print $connection $printmenu;
+				print "recevoir choix";
 
 				chomp($input = <$connection>);
+				print "$input";
+				if ($input == 1)
+				{
+					print "Choix 1";
+				}
+				elsif ($choice == 2)
+
+				{
+				}
 
 			}
 
