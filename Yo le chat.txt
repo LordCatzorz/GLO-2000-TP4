@@ -3,6 +3,8 @@ La semaine prochaine je clanche ça.
 Mon hash marchait côté serveur, mais quand je l'ai déplacé client, ça fait pas le hash tant que la connexion est pas fini, je comprend pas encore pourquoi.
 J'ai pas été capable de closer la connexion quand l'authentification a échouée.
 
+J'ai réparé la communication client-serveur. Le hash fonctionne bien et il l'envoit avant la fermeture de la connection. J'ai pas de gestion d'authentification échouée, though.
+
 user1 -> lundi
 user2 -> mardi
 user3 -> mercredi
