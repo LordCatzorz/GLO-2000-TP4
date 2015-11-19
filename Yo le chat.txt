@@ -1,6 +1,7 @@
 La semaine prochaine je clanche ça.
 
-J'ai pas été capable de closer la connexion quand l'authentification a échouée. Halp plz!
+Mon hash marchait côté serveur, mais quand je l'ai déplacé client, ça fait pas le hash tant que la connexion est pas fini, je comprend pas encore pourquoi.
+J'ai pas été capable de closer la connexion quand l'authentification a échouée.
 
 user1 -> lundi
 user2 -> mardi
