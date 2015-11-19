@@ -183,9 +183,10 @@ sub main
 
   	my $server = &startserveur($port);
 
-  	while (my $connection = $serveur->accept())
-
-	{
+  	while (1)
+  	{
+  		print "En attente d'une connection\n";
+  		$connection = $serveur->accept();
 		my $client_address = $connection->peerhost();
    	 	my $client_port = $connection->peerport();
     	print "connection reçu de $client_address:$client_port\n";
@@ -194,6 +195,7 @@ sub main
 
 		if (&askclientidentification($connection))
 		{
+			$connection->send("OK");
 			$connection->send("Authentification réussi.\nBonjour $username");
 			#print $connection $printmenu;
 			$connection->send($printmenu);
@@ -208,6 +210,7 @@ sub main
 			$connection->close();
 		}
 
+	
 	}
 
 }

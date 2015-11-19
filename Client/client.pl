@@ -80,83 +80,92 @@ or die "Impossible de se connecter sur le port $port à l'adresse $host";
 	$connection->send($hashpassword);
 
 	$connection->recv($input, 1024);
-	print "$input\n";
-
 	
-	$connection->recv($input, 1024);
-	while($choice < 1 || $choice > 5)
-	
+	if ($input == "OK")
 	{
-		#print "menu";
-		#print "$input\n";#menu
-		#print "Menu\n1. Envoie de courriels \n2. Consultation de courriels\n3. Statistiques\n4. Mode administrateur\n5. Quitter \n";
-	
+		$connection->recv($input, 1024);
 		print "$input\n";
 
-		chomp($choice = <STDIN>);
-		print "choice : $choice\n";
+		
+		$connection->recv($input, 1024);
+		while($choice < 1 || $choice > 5)
+		
+		{
+			#print "menu";
+			#print "$input\n";#menu
+			#print "Menu\n1. Envoie de courriels \n2. Consultation de courriels\n3. Statistiques\n4. Mode administrateur\n5. Quitter \n";
+		
+			print "$input\n";
 	
+			chomp($choice = <STDIN>);
+			print "choice : $choice\n";
+		
+		}
+	
+		print "Envoie au serveur 3\n";
+		$connection->send($choice);
+		#shutdown($connection, 1);
+		
+		
+		if ($choice == 1)
+		
+		{
+		
+			print "Quelle est l'adresse de destination:\n";
+		
+			my $destAdr = <STDIN>;
+			#print $connection $destAdr;																																														
+		
+			print "Quelle est l'adresse en copie conforme:\n";
+		
+			my $ccAdr = <STDIN>;
+			#print $connection $ccAdr;
+		
+			print "Quel est le sujet:\n";
+		
+			my $subject = <STDIN>;
+			#print $connection $subject;
+		
+			print "Quel est le corps du message:\n";
+		
+			my $body = <STDIN>;
+			#print $connection $body
+		
+		} 
+		
+		elsif ($choice == 2)
+		
+		{
+		
+			print "Quel numero:\n";
+		
+			my $number = <STDIN>;
+		
+		}
+		
+		elsif ($choice == 3)
+		
+		{
+		
+		}
+		
+		elsif ($choice == 4)
+		
+		{
+		
+		}
+		
+		elsif ($choice == 5)
+		
+		{
+		
+			exit 0;
+		
+		}
 	}
-
-	print "Envoie au serveur 3\n";
-	$connection->send($choice);
-	#shutdown($connection, 1);
-	
-	
-	if ($choice == 1)
-	
+	else
 	{
-	
-		print "Quelle est l'adresse de destination:\n";
-	
-		my $destAdr = <STDIN>;
-		#print $connection $destAdr;
-	
-		print "Quelle est l'adresse en copie conforme:\n";
-	
-		my $ccAdr = <STDIN>;
-		#print $connection $ccAdr;
-	
-		print "Quel est le sujet:\n";
-	
-		my $subject = <STDIN>;
-		#print $connection $subject;
-	
-		print "Quel est le corps du message:\n";
-	
-		my $body = <STDIN>;
-		#print $connection $body
-	
-	} 
-	
-	elsif ($choice == 2)
-	
-	{
-	
-		print "Quel numero:\n";
-	
-		my $number = <STDIN>;
-	
-	}
-	
-	elsif ($choice == 3)
-	
-	{
-	
-	}
-	
-	elsif ($choice == 4)
-	
-	{
-	
-	}
-	
-	elsif ($choice == 5)
-	
-	{
-	
-		exit 0;
-	
+		print "Connection échouée\n";
 	}
 
 #}
