@@ -38,125 +38,128 @@ or die "Impossible de se connecter sur le port $port à l'adresse $host";
 
 
 
-while ($ligne ne "quit\n")
+#while ($ligne ne "quit\n")
 
-{
+#{
 
-	$input = <$connection>;
-
-	print $input;
+	#chomp($input = <$connection>);
+	$connection->recv($input, 1024);
+	print "$input\n";
+	#chomp($input = <$connection>);
+	$connection->recv($input, 1024);
+	
 
 	while($username eq "")
-
 	{
-
-		#print "Veuillez entrer votre nom d'utilisateur:\n";
-
-		$input = <$connection>;
-
-		print $input;
-		$username = <STDIN>; 
+		print "$input\n";
+		chomp($username = <STDIN>); 
+		print "username : $username\n";
 
 	}
+	print "Envoie au serveur 1\n";
+	#print $connection $username;
+	$connection->send($username);
 
-	print $connection $username;
-
-
-
+	#chomp($input = <$connection>);
+	$connection->recv($input, 1024);
 	while($password eq "")
-
 	{
-
-		#print "Veuillez entrer votre mot de passe:\n";
-		$input = <$connection>;
-
-		print $input;
-
-		$password = <STDIN>;
-
+		print "debut password\n";
+		print "$input\n";
+		
+		chomp($password = <STDIN>);
+		print "Password : $password\n";
 	}
-	print md5_hex($password);
 	my $hashpassword = md5_hex($password);
 
-	print $connection $hashpassword;
-	$input = <$connection>;
+	print "hashpassword : $hashpassword\n";
+	print "Envoie au serveur 2\n";
 
-	print $input;
+	#print $connection $hashpassword;
+	
+	$connection->send($hashpassword);
 
+	$connection->recv($input, 1024);
+	print "$input\n";
 
-
+	
+	$connection->recv($input, 1024);
 	while($choice < 1 || $choice > 5)
-
+	
 	{
+		#print "menu";
+		#print "$input\n";#menu
+		#print "Menu\n1. Envoie de courriels \n2. Consultation de courriels\n3. Statistiques\n4. Mode administrateur\n5. Quitter \n";
+	
+		print "$input\n";
 
-		print "Menu\n1. Envoie de courriels \n2. Consultation de courriels\n3. Statistiques\n4. Mode administrateur\n5. Quitter \n";
-
-		$choice = <STDIN>;
-
-		chomp($choice);
-		print $connection $choice;
-
+		chomp($choice = <STDIN>);
+		print "choice : $choice\n";
+	
 	}
 
-
-
+	print "Envoie au serveur 3\n";
+	$connection->send($choice);
+	#shutdown($connection, 1);
+	
+	
 	if ($choice == 1)
-
+	
 	{
-
+	
 		print "Quelle est l'adresse de destination:\n";
-
+	
 		my $destAdr = <STDIN>;
 		#print $connection $destAdr;
-
+	
 		print "Quelle est l'adresse en copie conforme:\n";
-
+	
 		my $ccAdr = <STDIN>;
 		#print $connection $ccAdr;
-
+	
 		print "Quel est le sujet:\n";
-
+	
 		my $subject = <STDIN>;
 		#print $connection $subject;
-
+	
 		print "Quel est le corps du message:\n";
-
+	
 		my $body = <STDIN>;
 		#print $connection $body
-
+	
 	} 
-
+	
 	elsif ($choice == 2)
-
+	
 	{
-
+	
 		print "Quel numero:\n";
-
+	
 		my $number = <STDIN>;
-
+	
 	}
-
+	
 	elsif ($choice == 3)
-
+	
 	{
-
+	
 	}
-
+	
 	elsif ($choice == 4)
-
+	
 	{
-
+	
 	}
-
+	
 	elsif ($choice == 5)
-
+	
 	{
-
+	
 		exit 0;
-
+	
 	}
 
-}
+#}
 
   
 

@@ -39,6 +39,7 @@ my $printmenu = "Menu\n
 
 				5. Quitter\n";
 
+my $username = "";
 
 
 
@@ -126,27 +127,23 @@ sub askclientidentification
 
 	my $clientconnection = $_[0];
 
-	my $username = "";
-
+	
 	my $cipheredpassword = "";
 
-	my $successfulidentification;
-
 	
+	$clientconnection->send("Veuillez vous identifier");
 
-	print $clientconnection "Veuillez vous identifier\n";
+	$clientconnection->send("Nom d'utilisateur:");
+	$clientconnection->recv($username, 1024);
 
-	print $clientconnection "Nom d'utilisateur: \n";
+	$clientconnection->send("Mot de passe:");
+	$clientconnection->recv($cipheredpassword, 1024);
 
-	chomp($username = <$clientconnection>);
+	my $successfulidentification = &checkuservalidity($username, $cipheredpassword);;
 
-	print $clientconnection "Mot de passe: \n";
+	print "End askclientidentification ($successfulidentification)\n";
 
-	chomp($cipheredpassword = <$clientconnection>);
-
-	print "End askclientidentification\n";
-
-	return &checkuservalidity($username, $cipheredpassword);
+	return $successfulidentification;
 
 }
 
@@ -189,43 +186,26 @@ sub main
   	while (my $connection = $serveur->accept())
 
 	{
+		my $client_address = $connection->peerhost();
+   	 	my $client_port = $connection->peerport();
+    	print "connection reçu de $client_address:$client_port\n";
 
 		my $desirequitter = false;
 
 		if (&askclientidentification($connection))
-
 		{
-			print $connection "Authentification reussie\n";
-			print "recevoir choix";
-
-			chomp($input = <$connection>);
-			print "$input";
-
-			while ($desirequitter eq false)
-
-			{
-
-				#print $connection $printmenu;
-				print "recevoir choix";
-
-				chomp($input = <$connection>);
-				print "$input";
-				if ($input == 1)
-				{
-					print "Choix 1";
-				}
-				elsif ($choice == 2)
-
-				{
-				}
-
-			}
+			$connection->send("Authentification réussi.\nBonjour $username");
+			#print $connection $printmenu;
+			$connection->send($printmenu);
+			print "En attente du choix de menu\n";
+			$connection->recv($input, 1024);
+			print "Reçu client : $input\n";
 
 		}
 		else
 		{
-			print $connection "Authentification echouee\n";
-			close($connection);
+			$connection->send("Authentification écjouée.\nFermeture de la connection.");
+			$connection->close();
 		}
 
 	}
