@@ -110,25 +110,29 @@ or die "Impossible de se connecter sur le port $port à l'adresse $host";
 		if ($choice == 1)
 		
 		{
-		
-			print "Quelle est l'adresse de destination:\n";
-		
-			my $destAdr = <STDIN>;
-			#print $connection $destAdr;																																														
-		
-			print "Quelle est l'adresse en copie conforme:\n";
-		
-			my $ccAdr = <STDIN>;
-			#print $connection $ccAdr;
-		
-			print "Quel est le sujet:\n";
-		
-			my $subject = <STDIN>;
-			#print $connection $subject;
-		
-			print "Quel est le corps du message:\n";
-		
-			my $body = <STDIN>;
+			#Adresse A:
+			$connection->recv($input, 1024);
+			print "$input\n";
+			chomp($input = <STDIN>);
+			$connection->send($input);
+
+			#Adresse CC:
+			$connection->recv($input, 1024);
+			print "$input\n";
+			chomp($input = <STDIN>);
+			$connection->send($input);
+
+			#Sujet:
+			$connection->recv($input, 1024);
+			print "$input\n";
+			chomp($input = <STDIN>);
+			$connection->send($input);
+
+			#Corps:
+			$connection->recv($input, 1024);
+			print "$input\n";
+			chomp($input = <STDIN>);
+			$connection->send($input);
 			#print $connection $body
 		
 		} 

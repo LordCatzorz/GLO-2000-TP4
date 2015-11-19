@@ -198,15 +198,57 @@ sub main
 			$connection->send("OK");
 			$connection->send("Authentification réussi.\nBonjour $username");
 			#print $connection $printmenu;
-			$connection->send($printmenu);
-			print "En attente du choix de menu\n";
-			$connection->recv($input, 1024);
-			print "Reçu client : $input\n";
+			while (1)
+			{
+				$connection->send($printmenu);
+				print "En attente du choix de menu\n";
+				$connection->recv($input, 1024);
+				print "Reçu client : $input\n";
+	
+				if ($input == "1")
+				{
+					$connection->send("Quelle est l'adresse de destination:");
+					my $destAdr = "";
+					$connection->recv($destAdr, 1024);																																													
+			
+					$connection->send("Quelle est l'adresse en copie conforme:");
+					my $ccAdr = "";
+					$connection->recv($ccAdr, 1024);
+			
+					$connection->send("Quel est le sujet:");
+					my $subject = "";
+					$connection->recv($subject, 1024);
+			
+					$connection->send("Quel est le corps du message:");
+					my $body = "";
+					$connection->recv($body, 1048576);
+	
+	
+	
+	
+				}
+				elsif ($input == "2")
+				{
+					
+				}
+				elsif ($input == "3")
+				{
+					
+				}
+				elsif ($input == "4")
+				{
+					
+				}
+				elsif ($input == "5")
+				{
+					$connection->close();
+				}
+			}
 
 		}
 		else
 		{
-			$connection->send("Authentification écjouée.\nFermeture de la connection.");
+			$connection->send("Authentification échouée.\nFermeture de la connection.");
 			$connection->close();
 		}
 
