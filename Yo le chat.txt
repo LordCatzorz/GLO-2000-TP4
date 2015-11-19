@@ -1,1 +1,8 @@
-La semaine prochaine je clanche �a.
+La semaine prochaine je clanche ça.
+
+J'ai pas été capable de closer la connexion quand l'authentification a échouée. Halp plz!
+
+user1 -> lundi
+user2 -> mardi
+user3 -> mercredi
+admin -> jeudi
