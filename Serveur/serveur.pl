@@ -46,13 +46,11 @@ sub checkuservalidity
 	my ($name, $path, $suffix) = File::Basename::fileparse($0);
 
 	my $username = $_[0];
-	print "Username recu $username\n";
-
 	my $cipheredpassword = $_[1];
-	print "Password recu $cipheredpassword\n";
+
 	my $configfile = '/config.txt';
 	$path = "$path$username$configfile";
-	print "Path $path\n";
+
 	opendir (my $dh, $directory);
 
 	open(my $fh, '<:encoding(UTF-8)', $path)
@@ -109,7 +107,6 @@ sub userexist
 {
 	my $searcheduser = $_[0];
 
-	print "User exist : ./$searcheduser\n";
 	if (-d "./$searcheduser")
 	{
 		return 1
@@ -148,14 +145,16 @@ sub creerfichiermessage
 
 	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 
-	my $contenuFichier = "Date et temps : $year-$mon-$mday $hour:$min:$sec\n
-De: $username$adresseApplication\n
-A: $destadr\n
-CC: $ccadr\n
-Sujet:$sujet\n
-Corps: \n
-$corps";
+	$msg = MIME::Lite->new(
+	From => "$username@$adresseApplication",
+	To => "$destadr",
+	Cc => "$ccadr",
+	Subject => "$sujet",
+	Data => "$corps"
+	);
 	
+
+	my $sendwithsmtp = 0;
 
 	my $filename = "$year$mon$mday-$hour$min$sec.txt";
 
@@ -167,17 +166,15 @@ $corps";
 			$destuser = "DESTERREUR";
 		}
 		my $path = "./$destuser/recu/dest/";
-		print "Creation de fichier dans $path$filename\n";
 		eval{make_path($path)};
 		my $file = "$path$filename";
 		open FILE, '>'.$file;
-		print FILE $contenuFichier;
+		print FILE $msg->as_string;;
 		close FILE;
 	}
 	else
 	{
-		print "SMTP : Dest:$destadr\n";
-		#smtp
+		$sendwithsmtp = 1;
 	}
 
 	if ($ccadrdomain eq $adresseApplication)
@@ -188,26 +185,28 @@ $corps";
 			$ccuser = "DESTERREUR";
 		}
 		my $path = "./$ccuser/recu/cc/";
-		print "Creation de fichier dans $path$filename\n";
 		eval{make_path($path)};
 		my $file = "$path$filename";
 		open FILE, '>'.$file;
-		print FILE $contenuFichier;
+		print FILE $msg->as_string;;
 		close FILE;
 	}
 	else
 	{
-		print "SMTP : CC:$ccadr\n";
-		#smtp
+		$sendwithsmtp = 1;
 	}
 
 	my $path = "./$username/envoye/";
-	print "Creation de fichier dans $path$filename\n";
 	eval{make_path($path)};
 	my $file = "$path$filename";
 	open FILE, '>'.$file;
-	print FILE $contenuFichier;
+	print FILE $msg->as_string;
 	close FILE;
+
+	if ($sendwithsmtp eq 1)
+	{
+		$msg->send('smtp', "smtp.ulaval.ca", Timeout=>60);
+	}
 }
 
 sub getlistfileinpath
@@ -296,6 +295,7 @@ sub main
 				{
 					print "Mode 2 sélectionné. Consultation de courriels.\n";
 					my @listoffile = &getlistfilereceived;
+					
 					if (scalar @listoffile > 0)
 					{
 						$connection->send("OK");
@@ -308,9 +308,9 @@ sub main
 							open FICHIER, $file;
 							while (my $ligne = <FICHIER>) 
 							{
-   								if ($ligne =~ /^Sujet: /)
+   								if ($ligne =~ /^Subject: /)
    								{	
-   									$ligne =~ s/Sujet ://;
+   									$ligne =~ s/Subject: //;
      							 	$stringToSend = "$stringToSend"."$iteator - $ligne\n";
    								}
 							}

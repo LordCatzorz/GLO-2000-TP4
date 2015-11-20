@@ -114,8 +114,9 @@ if ($messageServeurAuthentificationReussi eq "OK")
 			$connection->recv(my $peutConsulterCourriel, 1024);
 			if ($peutConsulterCourriel eq "OK")
 			{
+				print "Ok\n";
 				$connection->recv(my $listeSujetsCourriels, 1048576);
-				print "Voici la liste des sujets:\n $listeSujetsCourriels\n Quel sujet voulez-vous consulter?\n";
+				print "Voici la liste des sujets:\n$listeSujetsCourriels\n Quel sujet voulez-vous consulter?\n";
 				chomp(my $choixSujetCourriel = <STDIN>);
 				$connection->send($choixSujetCourriel);
 	
