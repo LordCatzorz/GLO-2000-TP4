@@ -233,24 +233,24 @@ sub getlistfileinpath
 sub getlistfilereceived
 {
 	my @listofsubjet;
-	push @listofsubjet, &getlistfiledest;
-	push @listofsubjet, &getlistfilecc;
+	push @listofsubjet, &getlistfiledest($_[0]);
+	push @listofsubjet, &getlistfilecc($_[0]);
 	@listofsubjet;
 }
 
 sub getlistfilecc
 {
-	&getlistfileinpath("./$username/recu/cc");
+	&getlistfileinpath("./$_[0]/recu/cc");
 }
 
 sub getlistfiledest
 {
-	&getlistfileinpath("./$username/recu/dest");
+	&getlistfileinpath("./$_[0]/recu/dest");
 }
 
 sub getlistfilesend
 {
-	&getlistfileinpath("./$username/envoye");
+	&getlistfileinpath("./$_[0]/envoye");
 }
 
 sub gettaillefichier
@@ -343,7 +343,7 @@ sub main
 				elsif ($choixMenu == "2")
 				{
 					print "Mode 2 sélectionné. Consultation de courriels.\n";
-					my @listoffile = &getlistfilereceived;
+					my @listoffile = &getlistfilereceived($username);
 					
 					if (scalar @listoffile > 0)
 					{
@@ -366,9 +366,9 @@ sub main
 				}
 				elsif ($choixMenu == "3")
 				{
-					my @listecc = &getlistfilecc;
-					my @listedest = &getlistfiledest;
-					my @listesend = &getlistfilesend;
+					my @listecc = &getlistfilecc($username);
+					my @listedest = &getlistfiledest($username);
+					my @listesend = &getlistfilesend($username);
 
 					my @statscc = &getstatsfichiers(@listecc);
 					my @statsdest = &getstatsfichiers(@listedest);
