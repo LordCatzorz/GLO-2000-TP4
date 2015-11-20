@@ -279,7 +279,7 @@ sub getstatsfichiers
   			if ($ligne =~ /^Subject: /)
   			{	
   				$ligne =~ s/Subject: //;
-  			 	$stringSujet = "$stringToSend"."$nombreFichier - $ligne\n";
+  			 	$stringSujet = "$stringSujet"."$nombreFichier - $ligne\n";
   			}
 		}
 		close FICHIER;
