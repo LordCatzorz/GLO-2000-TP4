@@ -11,7 +11,8 @@ use IO::Socket;
 use MIME::Lite;
 use File::Basename qw();
 use File::Path qw(make_path);
-
+use Getopt::Long;
+use File::stat;
 
 
 #Declaration des variable
@@ -232,16 +233,64 @@ sub getlistfileinpath
 sub getlistfilereceived
 {
 	my @listofsubjet;
-	push @listofsubjet, &getlistfileinpath("./$username/recu/dest");
-	push @listofsubjet, &getlistfileinpath("./$username/recu/cc");
+	push @listofsubjet, &getlistfiledest;
+	push @listofsubjet, &getlistfilecc;
 	@listofsubjet;
+}
+
+sub getlistfilecc
+{
+	&getlistfileinpath("./$username/recu/cc");
+}
+
+sub getlistfiledest
+{
+	&getlistfileinpath("./$username/recu/dest");
+}
+
+sub getlistfilesend
+{
+	&getlistfileinpath("./$username/envoye");
+}
+
+sub gettaillefichier
+{
+	my $filename = $_[0];
+	$myresult = GetOptions ( "filename=s" => \$filename );
+	my $filesize = stat($filename)->size;
+	$filesize
+}
+
+sub getstatsfichiers
+{
+	my @listoffile = @_;
+
+	my $nombreFichier = 0;
+	my $taille = 0;
+	my $stringSujet = "";
+
+	foreach my $file (@listoffile)
+	{
+  		++$nombreFichier;
+  		$taille = $taille + &gettaillefichier($file);
+		open FICHIER, $file;
+		while (my $ligne = <FICHIER>) 
+		{
+  			if ($ligne =~ /^Subject: /)
+  			{	
+  				$ligne =~ s/Subject: //;
+  			 	$stringSujet = "$stringToSend"."$nombreFichier - $ligne\n";
+  			}
+		}
+		close FICHIER;
+	}
+	($nombreFichier, $taille, $stringSujet);
+
 }
 
 
 sub main
-
 {
-
   	my $server = &startserveur($port);
 
   	while (1)
@@ -299,24 +348,8 @@ sub main
 					if (scalar @listoffile > 0)
 					{
 						$connection->send("OK");
-						my $stringToSend = "";
-						my $iteator = 0;
-						foreach my $file (@listoffile)
-						{
-	
-   							++$iteator;	
-							open FICHIER, $file;
-							while (my $ligne = <FICHIER>) 
-							{
-   								if ($ligne =~ /^Subject: /)
-   								{	
-   									$ligne =~ s/Subject: //;
-     							 	$stringToSend = "$stringToSend"."$iteator - $ligne\n";
-   								}
-							}
-							close FICHIER;
-						}
-						$connection->send($stringToSend);
+						my @stats = &getstatsfichiers(@listoffile);
+						$connection->send(@stats[2]);
 						$connection->recv(my $choix, 1024);
 	
 						open FICHIER, "<@listoffile[$choix-1]";
@@ -333,7 +366,43 @@ sub main
 				}
 				elsif ($choixMenu == "3")
 				{
-					
+					my @listecc = &getlistfilecc;
+					my @listedest = &getlistfiledest;
+					my @listesend = &getlistfilesend;
+
+					my @statscc = &getstatsfichiers(@listecc);
+					my @statsdest = &getstatsfichiers(@listedest);
+					my @statssend = &getstatsfichiers(@listesend);
+
+					my $nbTotal = @statscc[0] + @statsdest[0] + @statssend[0];
+					my $tailleTotale = @statscc[1] + @statsdest[1] + @statssend[1];
+					my $stringToSend = "
+Voici les statistiques de votre compte:\n
+---------------------------------------\n
+TOTAL
+Nombre de messages : $nbTotal \n
+Taille : $tailleTotale\n
+---------------------------------------\n
+MESSAGES ENVOYÉS\n
+Nombre de messages : @statssend[0]\n
+Taille : @statssend[1]\n
+Liste des sujets : \n
+$statssend[2]
+---------------------------------------\n
+MESSAGES REÇUS\n
+Nombre de messages : @statsdest[0]\n
+Taille : @statsdest[1]\n
+Liste des sujets : \n
+$statsdest[2]
+---------------------------------------\n
+MESSAGES COPIE CONFORME\n
+Nombre de messages : @statscc[0]\n
+Taille : @statscc[1]\n
+Liste des sujets : \n
+$statscc[2]
+---------------------------------------\n";
+				
+					$connection->send($stringToSend);
 				}
 				elsif ($choixMenu == "4")
 				{
@@ -344,15 +413,11 @@ sub main
 					$connection->close();
 				}
 			}
-
 		}
 		else
 		{
 			$connection->send("Authentification échouée.\nFermeture de la connection.");
 			$connection->close();
-		}
-
-	
+		}	
 	}
-
 }
