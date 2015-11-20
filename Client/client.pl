@@ -12,7 +12,7 @@ use Digest::MD5 qw(md5_hex);
 
 #Declaration des variable
 
-my $choice = 0;
+my $choixMenu = 0;
 
 my $username = "";
 
@@ -37,142 +37,119 @@ PeerPort => $port)
 or die "Impossible de se connecter sur le port $port à l'adresse $host";
 
 
+$connection->recv(my $premierMessageServeur, 1024);
+print "$premierMessageServeur\n";
 
-#while ($ligne ne "quit\n")
-
-#{
-
-	#chomp($input = <$connection>);
-	$connection->recv($input, 1024);
-	print "$input\n";
-	#chomp($input = <$connection>);
-	$connection->recv($input, 1024);
-	
-
-	while($username eq "")
+$connection->recv(my $messageServeurDemandeNomUtilisateur, 1024);
+while($username eq "")
+{
+	print "$messageServeurDemandeNomUtilisateur\n";
+	chomp($username = <STDIN>); 
+}
+$connection->send($username);
+$connection->recv(my $messageServeurDemandeMotDePasse, 1024);
+while($password eq "")
+{
+	print "$messageServeurDemandeMotDePasse\n";
+	chomp($password = <STDIN>);
+}
+my $hashpassword = md5_hex($password);
+$connection->send($hashpassword);
+$connection->recv(my $messageServeurAuthentificationReussi, 1024);
+if ($messageServeurAuthentificationReussi eq "OK")
+{
+	$connection->recv(my $messageServeurBienvenue, 1024);
+	print "$messageServeurBienvenue\n";
+	while (1)
 	{
-		print "$input\n";
-		chomp($username = <STDIN>); 
-		print "username : $username\n";
-
-	}
-	print "Envoie au serveur 1\n";
-	#print $connection $username;
-	$connection->send($username);
-
-	#chomp($input = <$connection>);
-	$connection->recv($input, 1024);
-	while($password eq "")
-	{
-		print "debut password\n";
-		print "$input\n";
-		
-		chomp($password = <STDIN>);
-		print "Password : $password\n";
-	}
-	my $hashpassword = md5_hex($password);
-
-	print "hashpassword : $hashpassword\n";
-	print "Envoie au serveur 2\n";
-
-	#print $connection $hashpassword;
-	
-	$connection->send($hashpassword);
-
-	$connection->recv($input, 1024);
-	if ($input eq "OK")
-	{
-		$connection->recv($input, 1024);
-		print "$input\n";
-
-		
-		$connection->recv($input, 1024);
-		while($choice < 1 || $choice > 5)
-		
+		$connection->recv(my $messageServeurMenu, 1024);
+		while($choixMenu < 1 || $choixMenu > 5)
 		{
-			#print "menu";
-			#print "$input\n";#menu
-			#print "Menu\n1. Envoie de courriels \n2. Consultation de courriels\n3. Statistiques\n4. Mode administrateur\n5. Quitter \n";
-		
-			print "$input\n";
+			print "$messageServeurMenu\n";
 	
-			chomp($choice = <STDIN>);
-			print "choice : $choice\n";
+			chomp($choixMenu = <STDIN>);
 		
 		}
-	
-		print "Envoie au serveur 3\n";
-		$connection->send($choice);
-		#shutdown($connection, 1);
-		
-		
-		if ($choice == 1)
+		$connection->send($choixMenu);
+
+		if ($choixMenu == 1)
 		
 		{
 			#Adresse A:
-			$connection->recv($input, 1024);
-			print "$input\n";
-			chomp($input = <STDIN>);
-			$connection->send($input);
+			$connection->recv(my $messageServeurDemandeAdresseA, 1024);
+			print "$messageServeurDemandeAdresseA\n";
+			chomp(my $adresseA = <STDIN>);
+			$connection->send($adresseA);
 
 			#Adresse CC:
-			$connection->recv($input, 1024);
-			print "$input\n";
-			chomp($input = <STDIN>);
-			$connection->send($input);
+			$connection->recv($messageServeurDemandeAdresseCC, 1024);
+			print "$messageServeurDemandeAdresseCC\n";
+			chomp(my $adresseCC = <STDIN>);
+			$connection->send($adresseCC);
 
 			#Sujet:
-			$connection->recv($input, 1024);
-			print "$input\n";
-			chomp($input = <STDIN>);
-			$connection->send($input);
+			$connection->recv($messageServeurDemandeSujet, 1024);
+			print "$messageServeurDemandeSujet\n";
+			chomp(my $sujetCouriel = <STDIN>);
+			$connection->send($sujetCouriel);
 
 			#Corps:
-			$connection->recv($input, 1024);
-			print "$input\n";
-			chomp($input = <STDIN>);
-			$connection->send($input);
-			#print $connection $body
+			$connection->recv($messageServeurDemandeCorps, 1024);
+			print "$messageServeurDemandeCorps\n";
+			chomp(my $corpsCourriel = <STDIN>);
+			$connection->send($corpsCourriel);
+
+			#confirmation
+			$connection->recv($messageServeurConfirmationEnvoie, 1024);
+			print "$messageServeurConfirmationEnvoie\n";
+
+			print "Appuyer sur Entrée pour continuer...";
+			<STDIN>;
+			print "\n\n"
 		
 		} 
 		
-		elsif ($choice == 2)
+		elsif ($choixMenu == 2)
+		
+		{
+			$connection->recv(my $listeSujetsCourriels, 1048576);
+			print "Voici la liste des sujets:\n $listeSujetsCourriels\n Quel sujet voulez-vous consulter?\n";
+			chomp(my $choixSujetCourriel = <STDIN>);
+			$connection->send($choixSujetCourriel);
+
+			$connection->recv(my $contenuCourriel, 1048576);
+			print "$contenuCourriel\n";
+
+			print "Appuyer sur Entrée pour continuer...";
+			<STDIN>;
+			print "\n\n"
+		}
+		
+		elsif ($choixMenu == 3)
 		
 		{
 		
-			print "Quel numero:\n";
-		
-			my $number = <STDIN>;
-		
 		}
 		
-		elsif ($choice == 3)
+		elsif ($choixMenu == 4)
 		
 		{
 		
 		}
 		
-		elsif ($choice == 4)
-		
-		{
-		
-		}
-		
-		elsif ($choice == 5)
+		elsif ($choixMenu == 5)
 		
 		{
 		
 			exit 0;
 		
 		}
+		$choixMenu = 0;
 	}
-	else
-	{
-		print "Connection échouée\n";
-	}
-
-#}
+}
+else
+{
+	print "Connection échouée\n";
+}
 
   
-
-   

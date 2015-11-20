@@ -100,7 +100,7 @@ sub askclientidentification
 	$clientconnection->send("Mot de passe:");
 	$clientconnection->recv($cipheredpassword, 1024);
 
-	my $successfulidentification = &checkuservalidity($username, $cipheredpassword);
+	my $successfulidentification = checkuservalidity($username, $cipheredpassword);
 
 	return $successfulidentification;
 }
@@ -152,7 +152,7 @@ sub creerfichiermessage
 De: $username$adresseApplication\n
 A: $destadr\n
 CC: $ccadr\n
-Sujet: $sujet\n
+Sujet:$sujet\n
 Corps: \n
 $corps";
 	
@@ -210,6 +210,34 @@ $corps";
 	close FILE;
 }
 
+sub getlistfileinpath
+{
+	my $path = $_[0];
+
+	my @listofsubjet;
+	opendir my $dir, "$path";
+	my @files = readdir $dir;
+
+	foreach $file (@files)
+	{
+		if ($file =~ /.txt$/)
+		{
+			push @listofsubjet, "$path/$file";
+		}
+	}
+
+	@listofsubjet;
+
+}
+
+sub getlistfilereceived
+{
+	my @listofsubjet;
+	push @listofsubjet, &getlistfileinpath("./$username/recu/dest");
+	push @listofsubjet, &getlistfileinpath("./$username/recu/cc");
+	@listofsubjet;
+}
+
 
 sub main
 
@@ -230,18 +258,18 @@ sub main
 		if (&askclientidentification($connection))
 		{
 			$connection->send("OK");
-			$connection->send("Authentification réussi.\nBonjour $username");
-			#print $connection $printmenu;
+			$connection->send("Authentification réussi.\nBonjour $username\n");
+			
 			while (1)
 			{
+				print "Affichage menu. Attente d'action.\n";
 				$connection->flush();
 				$connection->send($printmenu);
-				print "En attente du choix de menu\n";
-				$connection->recv($input, 1024);
-				print "Reçu client : $input\n";
+				$connection->recv(my $choixMenu, 1024);
 	
-				if ($input == "1")
+				if ($choixMenu == "1")
 				{
+					print "Mode 1 sélectionné. Envoie de courriels.\n";
 					$connection->send("Quelle est l'adresse de destination:");
 					my $destAdr = "";
 					$connection->recv($destAdr, 1024);																																													
@@ -264,19 +292,46 @@ sub main
 					$connection->send("Message envoyé");
 	
 				}
-				elsif ($input == "2")
+				elsif ($choixMenu == "2")
+				{
+					print "Mode 2 sélectionné. Consultation de courriels.\n";
+					my @listoffile = &getlistfilereceived;
+					my $stringToSend = "";
+					my $iteator = 0;
+					foreach my $file (@listoffile)
+					{
+
+   						++$iteator;	
+						open FICHIER, $file;
+						while (my $ligne = <FICHIER>) 
+						{
+   							if ($ligne =~ /^Sujet: /)
+   							{	
+   								$ligne =~ s/Sujet ://;
+     						 	$stringToSend = "$stringToSend"."$iteator - $ligne\n";
+   							}
+						}
+						close FICHIER;
+					}
+					$connection->send($stringToSend);
+					$connection->recv(my $choix, 1024);
+
+					open FICHIER, "<@listoffile[$choix-1]";
+					undef $/; #Pour lire tous le fichier;
+					my $contenuFichier = <FICHIER>;
+					close FICHIER;
+					$/ = "\n";
+					$connection->send($contenuFichier);
+				}
+				elsif ($choixMenu == "3")
 				{
 					
 				}
-				elsif ($input == "3")
+				elsif ($choixMenu == "4")
 				{
 					
 				}
-				elsif ($input == "4")
-				{
-					
-				}
-				elsif ($input == "5")
+				elsif ($choixMenu == "5")
 				{
 					$connection->close();
 				}
