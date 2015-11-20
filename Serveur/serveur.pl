@@ -296,32 +296,40 @@ sub main
 				{
 					print "Mode 2 sélectionné. Consultation de courriels.\n";
 					my @listoffile = &getlistfilereceived;
-					my $stringToSend = "";
-					my $iteator = 0;
-					foreach my $file (@listoffile)
+					if (scalar @listoffile > 0)
 					{
-
-   						++$iteator;	
-						open FICHIER, $file;
-						while (my $ligne = <FICHIER>) 
+						$connection->send("OK");
+						my $stringToSend = "";
+						my $iteator = 0;
+						foreach my $file (@listoffile)
 						{
-   							if ($ligne =~ /^Sujet: /)
-   							{	
-   								$ligne =~ s/Sujet ://;
-     						 	$stringToSend = "$stringToSend"."$iteator - $ligne\n";
-   							}
+	
+   							++$iteator;	
+							open FICHIER, $file;
+							while (my $ligne = <FICHIER>) 
+							{
+   								if ($ligne =~ /^Sujet: /)
+   								{	
+   									$ligne =~ s/Sujet ://;
+     							 	$stringToSend = "$stringToSend"."$iteator - $ligne\n";
+   								}
+							}
+							close FICHIER;
 						}
+						$connection->send($stringToSend);
+						$connection->recv(my $choix, 1024);
+	
+						open FICHIER, "<@listoffile[$choix-1]";
+						undef $/; #Pour lire tous le fichier;
+						my $contenuFichier = <FICHIER>;
 						close FICHIER;
+						$/ = "\n";
+						$connection->send($contenuFichier);
 					}
-					$connection->send($stringToSend);
-					$connection->recv(my $choix, 1024);
-
-					open FICHIER, "<@listoffile[$choix-1]";
-					undef $/; #Pour lire tous le fichier;
-					my $contenuFichier = <FICHIER>;
-					close FICHIER;
-					$/ = "\n";
-					$connection->send($contenuFichier);
+					else
+					{
+						$connection->send("Erreur: Aucun courriel reçu");
+					}
 				}
 				elsif ($choixMenu == "3")
 				{

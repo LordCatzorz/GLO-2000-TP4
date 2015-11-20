@@ -109,20 +109,27 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		
 		} 
 		
-		elsif ($choixMenu == 2)
-		
+		elsif ($choixMenu == 2)	
 		{
-			$connection->recv(my $listeSujetsCourriels, 1048576);
-			print "Voici la liste des sujets:\n $listeSujetsCourriels\n Quel sujet voulez-vous consulter?\n";
-			chomp(my $choixSujetCourriel = <STDIN>);
-			$connection->send($choixSujetCourriel);
-
-			$connection->recv(my $contenuCourriel, 1048576);
-			print "$contenuCourriel\n";
-
-			print "Appuyer sur Entrée pour continuer...";
-			<STDIN>;
-			print "\n\n"
+			$connection->recv(my $peutConsulterCourriel, 1024);
+			if ($peutConsulterCourriel eq "OK")
+			{
+				$connection->recv(my $listeSujetsCourriels, 1048576);
+				print "Voici la liste des sujets:\n $listeSujetsCourriels\n Quel sujet voulez-vous consulter?\n";
+				chomp(my $choixSujetCourriel = <STDIN>);
+				$connection->send($choixSujetCourriel);
+	
+				$connection->recv(my $contenuCourriel, 1048576);
+				print "$contenuCourriel\n";
+	
+				print "Appuyer sur Entrée pour continuer...";
+				<STDIN>;
+				print "\n\n"
+			}
+			else
+			{
+				print "Aucun message à consulter.\n"
+			}
 		}
 		
 		elsif ($choixMenu == 3)
