@@ -1,3 +1,5 @@
+De mon côté, $premierMessageServeur affiche non seulement le "Veuillez vou identifier" mais aussi le "Nom d'utilisateur". Je veux pas scrapper ton code, mais je vais le faire pour que ça fonctionne de mon côté et tu pourras vérifier si ça fonctionne pour toi aussi.
+
 user1 -> lundi
 user2 -> mardi
 user3 -> mercredi
