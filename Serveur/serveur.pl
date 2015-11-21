@@ -130,6 +130,7 @@ sub startserveur
 
 	or die "Impossible de se connecter sur le port $port en localhost";
 
+	$serveur->autoflush(1);
 	$serveur;
 
 }
@@ -307,8 +308,8 @@ sub main
 		{
 			$connection->send("OK");
 			$connection->send("Authentification réussi.\nBonjour $username\n");
-			
-			while (1)
+			$connection->flush();
+			while ($connection->connected)
 			{
 				print "Affichage menu. Attente d'action.\n";
 				$connection->flush();

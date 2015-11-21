@@ -36,6 +36,7 @@ PeerPort => $port)
 
 or die "Impossible de se connecter sur le port $port à l'adresse $host";
 
+$connection->autoflush(1);
 
 $connection->recv(my $premierMessageServeur, 1024);
 print "$premierMessageServeur\n";
