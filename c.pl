@@ -9,19 +9,20 @@ my $server = IO::Socket::INET->new( Proto => "tcp",
 										PeerPort => 2559);
 
 $server->recv(my $firstServerMessage, 1024);
-$server->flush;
 print "$firstServerMessage\n";
 $server->recv(my $serverAskUsernameMessage, 1024);
-$server->flush;
 while($username eq "")
 {
+	print "begin while\n";
 	print "$serverAskUsernameMessage\n";
 	chomp($username = <STDIN>); 
+	print "end while\n";
 }
+	print "bedin send \n";
 $server->send($username);
-$server->flush;
+	print "end send \n";
 $server->recv(my $serverAskPasswordMessage, 1024);
-$server->flush;
+	print "end recv \n";
 while($password eq "")
 {
 	print "$serverAskPasswordMessage\n";
@@ -29,7 +30,5 @@ while($password eq "")
 }
 my $hashedPassword = md5_hex($password);
 $server->send($hashedPassword);
-$server->flush;
 $server->recv(my $lastServerMessage, 1024);
-$server->flush;
 print $lastServerMessage;
