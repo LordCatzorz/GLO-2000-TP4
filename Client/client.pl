@@ -77,33 +77,41 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		if ($choixMenu == 1)
 		
 		{
-			#Adresse A:
-			$connection->recv(my $messageServeurDemandeAdresseA, 1024);
-			print "$messageServeurDemandeAdresseA\n";
-			chomp(my $adresseA = <STDIN>);
-			$connection->send($adresseA);
+			$connection->recv(my $peutEnvoyerCourriel, 1024);
+			if ($peutEnvoyerCourriel eq "OK")
+			{
+				#Adresse A:
+				$connection->recv(my $messageServeurDemandeAdresseA, 1024);
+				print "$messageServeurDemandeAdresseA\n";
+				chomp(my $adresseA = <STDIN>);
+				$connection->send($adresseA);
 
-			#Adresse CC:
-			$connection->recv(my $messageServeurDemandeAdresseCC, 1024);
-			print "$messageServeurDemandeAdresseCC\n";
-			chomp(my $adresseCC = <STDIN>);
-			$connection->send($adresseCC);
+				#Adresse CC:
+				$connection->recv(my $messageServeurDemandeAdresseCC, 1024);
+				print "$messageServeurDemandeAdresseCC\n";
+				chomp(my $adresseCC = <STDIN>);
+				$connection->send($adresseCC);
 
-			#Sujet:
-			$connection->recv(my $messageServeurDemandeSujet, 1024);
-			print "$messageServeurDemandeSujet\n";
-			chomp(my $sujetCouriel = <STDIN>);
-			$connection->send($sujetCouriel);
+				#Sujet:
+				$connection->recv(my $messageServeurDemandeSujet, 1024);
+				print "$messageServeurDemandeSujet\n";
+				chomp(my $sujetCouriel = <STDIN>);
+				$connection->send($sujetCouriel);
 
-			#Corps:
-			$connection->recv(my $messageServeurDemandeCorps, 1024);
-			print "$messageServeurDemandeCorps\n";
-			chomp(my $corpsCourriel = <STDIN>);
-			$connection->send($corpsCourriel);
+				#Corps:
+				$connection->recv(my $messageServeurDemandeCorps, 1024);
+				print "$messageServeurDemandeCorps\n";
+				chomp(my $corpsCourriel = <STDIN>);
+				$connection->send($corpsCourriel);
 
-			#confirmation
-			$connection->recv(my $messageServeurConfirmationEnvoie, 1024);
-			print "$messageServeurConfirmationEnvoie\n";
+				#confirmation
+				$connection->recv(my $messageServeurConfirmationEnvoie, 1024);
+				print "$messageServeurConfirmationEnvoie\n";
+			}
+			else
+			{
+				print "$peutEnvoyerCourriel\n";
+			}
 
 			print "Appuyez sur Entrée pour continuer...";
 			<STDIN>;

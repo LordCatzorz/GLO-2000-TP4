@@ -145,7 +145,7 @@ sub creerfichiermessage
 	(my $sec,my $min,my $hour,my $mday,my $mon,my $year,my $wday,my $yday,my $isdst) = localtime();
 
 	my $msg = MIME::Lite->new(
-	From => "$username@$adresseApplication",
+	From => "$username".'@'."$adresseApplication",
 	To => "$destadr",
 	Cc => "$ccadr",
 	Subject => "$sujet",
@@ -372,26 +372,35 @@ sub main
 				if ($choixMenu == "1")
 				{
 					print "Mode 1 sélectionné. Envoie de courriels.\n";
-					$connection->send("Quelle est l'adresse de destination:");
-					my $destAdr = "";
-					$connection->recv($destAdr, 1024);																																													
-			
-					$connection->send("Quelle est l'adresse en copie conforme:");
-					my $ccAdr = "";
-					$connection->recv($ccAdr, 1024);
-			
-					$connection->send("Quel est le sujet:");
-					my $sujet = "";
-					$connection->recv($sujet, 1024);
-			
-					$connection->send("Quel est le corps du message:");
-					my $corps = "";
-					$connection->recv($corps, 1048576);
-	
-					
-					&creerfichiermessage($destAdr, $ccAdr, $sujet, $corps);
-					
-					$connection->send("Message envoyé");
+					if ($username ne "admin")
+					{
+						$connection->send("OK");
+						
+						$connection->send("Quelle est l'adresse de destination:");
+						my $destAdr = "";
+						$connection->recv($destAdr, 1024);																																													
+				
+						$connection->send("Quelle est l'adresse en copie conforme:");
+						my $ccAdr = "";
+						$connection->recv($ccAdr, 1024);
+				
+						$connection->send("Quel est le sujet:");
+						my $sujet = "";
+						$connection->recv($sujet, 1024);
+				
+						$connection->send("Quel est le corps du message:");
+						my $corps = "";
+						$connection->recv($corps, 1048576);
+		
+						
+						&creerfichiermessage($destAdr, $ccAdr, $sujet, $corps);
+						
+						$connection->send("Message envoyé");
+					}	
+					else
+					{
+						$connection->send("Les administrateurs ne peuvent pas envoyer de courriels");
+					}
 	
 				}
 				elsif ($choixMenu == "2")
@@ -420,12 +429,14 @@ sub main
 				}
 				elsif ($choixMenu == "3")
 				{
+					print "Mode 3 sélectionné. Consultation de statistq¸ues.\n";
 					my $stringToSend = &getstatsutilisateur($username);
 				
 					$connection->send($stringToSend);
 				}
 				elsif ($choixMenu == "4")
 				{
+					print "Mode 4 sélectionné. Administrateur.\n";
 					if ($username eq "admin")
 					{
 						my @listofusers = &getlistusers;
