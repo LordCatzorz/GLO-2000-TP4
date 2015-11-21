@@ -13,16 +13,11 @@ print "$firstServerMessage\n";
 $server->recv(my $serverAskUsernameMessage, 1024);
 while($username eq "")
 {
-	print "begin while\n";
 	print "$serverAskUsernameMessage\n";
 	chomp($username = <STDIN>); 
-	print "end while\n";
 }
-	print "bedin send \n";
 $server->send($username);
-	print "end send \n";
 $server->recv(my $serverAskPasswordMessage, 1024);
-	print "end recv \n";
 while($password eq "")
 {
 	print "$serverAskPasswordMessage\n";
