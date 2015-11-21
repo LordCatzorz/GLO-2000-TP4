@@ -3,6 +3,7 @@ Donc si je met cette ligne en commentaire, ça fonctionne: $connection->recv(my 
 J'imagine que toi ça chie quand tu fais ça?
 
 Oui, mais je suis sur Windows. J'ai pas testé sur Linux.
+Bon, sur Linux, il semble y avoir un problème avec Socket->flush
 
 user1 -> lundi
 user2 -> mardi
