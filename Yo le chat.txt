@@ -2,6 +2,8 @@ De mon côté, $premierMessageServeur affiche non seulement le "Veuillez vou ide
 Donc si je met cette ligne en commentaire, ça fonctionne: $connection->recv(my $messageServeurDemandeNomUtilisateur, 1024);
 J'imagine que toi ça chie quand tu fais ça?
 
+Oui, mais je suis sur Windows. J'ai pas testé sur Linux.
+
 user1 -> lundi
 user2 -> mardi
 user3 -> mercredi
