@@ -1,7 +1,3 @@
-C'est normal que côté client, lorsque j'entre mon username rien ne se passe ensuite? Pourtant je regarde le code et je vois vraiment pas pourquoi! Et toi tu sembles être capable... C'est quoi l'erreur conne que je fais? :P
-
-Non.
-
 user1 -> lundi
 user2 -> mardi
 user3 -> mercredi
