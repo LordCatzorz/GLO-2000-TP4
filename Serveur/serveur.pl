@@ -228,6 +228,21 @@ sub getlistfileinpath
 
 }
 
+sub getlistusers
+{
+	opendir my $dir, "./";
+	my @files = readdir $dir;
+	my @listofuser;
+	
+	foreach my $file (@files)
+	{
+		if ($file !~ /\./ and $file !~ /^admin$/ and $file !~ /^DESTERREUR$/)
+		{
+			push @listofuser, "$file";
+		}
+	}
+	@listofuser;
+}
 sub getlistfilereceived
 {
 	my @listofsubjet;
@@ -283,6 +298,48 @@ sub getstatsfichiers
 	}
 	($nombreFichier, $taille, $stringSujet);
 
+}
+
+sub getstatsutilisateur
+{
+	my $utilisateurdesiree = $_[0];
+	my @listecc = &getlistfilecc($utilisateurdesiree);
+	my @listedest = &getlistfiledest($utilisateurdesiree);
+	my @listesend = &getlistfilesend($utilisateurdesiree);
+
+	my @statscc = &getstatsfichiers(@listecc);
+	my @statsdest = &getstatsfichiers(@listedest);
+	my @statssend = &getstatsfichiers(@listesend);
+
+	my $nbTotal = $statscc[0] + $statsdest[0] + $statssend[0];
+	my $tailleTotale = $statscc[1] + $statsdest[1] + $statssend[1];
+	my $stringToSend = "
+Voici les statistiques de $utilisateurdesiree:\n
+---------------------------------------\n
+TOTAL
+Nombre de messages : $nbTotal \n
+Taille : $tailleTotale\n
+---------------------------------------\n
+MESSAGES ENVOYÉS\n
+Nombre de messages : $statssend[0]\n
+Taille : $statssend[1]\n
+Liste des sujets : \n
+$statssend[2]
+---------------------------------------\n
+MESSAGES REÇUS\n
+Nombre de messages : $statsdest[0]\n
+Taille : $statsdest[1]\n
+Liste des sujets : \n
+$statsdest[2]
+---------------------------------------\n
+MESSAGES COPIE CONFORME\n
+Nombre de messages : $statscc[0]\n
+Taille : $statscc[1]\n
+Liste des sujets : \n
+$statscc[2]
+---------------------------------------\n";
+	
+	$stringToSend;		
 }
 
 
@@ -363,47 +420,38 @@ sub main
 				}
 				elsif ($choixMenu == "3")
 				{
-					my @listecc = &getlistfilecc($username);
-					my @listedest = &getlistfiledest($username);
-					my @listesend = &getlistfilesend($username);
-
-					my @statscc = &getstatsfichiers(@listecc);
-					my @statsdest = &getstatsfichiers(@listedest);
-					my @statssend = &getstatsfichiers(@listesend);
-
-					my $nbTotal = $statscc[0] + $statsdest[0] + $statssend[0];
-					my $tailleTotale = $statscc[1] + $statsdest[1] + $statssend[1];
-					my $stringToSend = "
-Voici les statistiques de votre compte:\n
----------------------------------------\n
-TOTAL
-Nombre de messages : $nbTotal \n
-Taille : $tailleTotale\n
----------------------------------------\n
-MESSAGES ENVOYÉS\n
-Nombre de messages : $statssend[0]\n
-Taille : $statssend[1]\n
-Liste des sujets : \n
-$statssend[2]
----------------------------------------\n
-MESSAGES REÇUS\n
-Nombre de messages : $statsdest[0]\n
-Taille : $statsdest[1]\n
-Liste des sujets : \n
-$statsdest[2]
----------------------------------------\n
-MESSAGES COPIE CONFORME\n
-Nombre de messages : $statscc[0]\n
-Taille : $statscc[1]\n
-Liste des sujets : \n
-$statscc[2]
----------------------------------------\n";
+					my $stringToSend = &getstatsutilisateur($username);
 				
 					$connection->send($stringToSend);
 				}
 				elsif ($choixMenu == "4")
 				{
-					
+					if ($username eq "admin")
+					{
+						my @listofusers = &getlistusers;
+						if (scalar @listofusers > 0)
+						{
+							$connection->send("OK");
+							my $incrementor = 0;
+							my $sentList = "";
+							foreach my $user (@listofusers)
+							{
+								++$incrementor;
+								$sentList = "$sentList\n$incrementor - $user";
+							}
+							$connection->send($sentList);
+							$connection->recv(my $choixUtilisateur,1024);
+							$connection->send(&getstatsutilisateur($listofusers[$choixUtilisateur - 1]));
+						}
+						else
+						{
+							$connection->send("Aucun utilisateur disponible");
+						}
+					}
+					else
+					{
+						$connection->send("Disponible pour les administrateurs seulement");
+					}
 				}
 				elsif ($choixMenu == "5")
 				{

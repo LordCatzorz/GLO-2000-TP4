@@ -147,7 +147,26 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		elsif ($choixMenu == 4)
 		
 		{
-		
+			$connection->recv(my $peutConsulterAdmin, 1024);
+
+			if ($peutConsulterAdmin eq "OK")
+			{
+				$connection->recv(my $listeutilisateur, 1048576);
+				print "Voici la liste des utilisateurs:\n$listeutilisateur\nQuel utilisateur voulez-vous consulter les statistiques?\n";
+				chomp(my $choixUtilisateur = <STDIN>);
+				$connection->send($choixUtilisateur);
+
+				$connection->recv(my $statistiquesutilisateur, 1048576);
+				print "$statistiquesutilisateur\n";
+
+			}
+			else
+			{
+				print "$peutConsulterAdmin\n";
+			}
+			print "Appuyez sur Entrée pour continuer...";
+			<STDIN>;
+			print "\n\n"
 		}
 		
 		elsif ($choixMenu == 5)
