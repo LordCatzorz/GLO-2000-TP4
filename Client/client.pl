@@ -8,7 +8,8 @@ use IO::Socket;
 
 use Digest::MD5 qw(md5_hex);
 
-
+use strict;
+use warnings;
 
 #Declaration des variable
 
@@ -83,25 +84,25 @@ if ($messageServeurAuthentificationReussi eq "OK")
 			$connection->send($adresseA);
 
 			#Adresse CC:
-			$connection->recv($messageServeurDemandeAdresseCC, 1024);
+			$connection->recv(my $messageServeurDemandeAdresseCC, 1024);
 			print "$messageServeurDemandeAdresseCC\n";
 			chomp(my $adresseCC = <STDIN>);
 			$connection->send($adresseCC);
 
 			#Sujet:
-			$connection->recv($messageServeurDemandeSujet, 1024);
+			$connection->recv(my $messageServeurDemandeSujet, 1024);
 			print "$messageServeurDemandeSujet\n";
 			chomp(my $sujetCouriel = <STDIN>);
 			$connection->send($sujetCouriel);
 
 			#Corps:
-			$connection->recv($messageServeurDemandeCorps, 1024);
+			$connection->recv(my $messageServeurDemandeCorps, 1024);
 			print "$messageServeurDemandeCorps\n";
 			chomp(my $corpsCourriel = <STDIN>);
 			$connection->send($corpsCourriel);
 
 			#confirmation
-			$connection->recv($messageServeurConfirmationEnvoie, 1024);
+			$connection->recv(my $messageServeurConfirmationEnvoie, 1024);
 			print "$messageServeurConfirmationEnvoie\n";
 
 			print "Appuyez sur Entrée pour continuer...";

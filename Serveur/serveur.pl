@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
-
+use strict;
+use warnings;
 
 #Ajout des librairies
 
@@ -28,8 +29,6 @@ my $configfilepath = "/config/config.txt";
 my $adresseApplication = "reseauglo.ca";
 #my $userconfigfilepath = "/user/";
 
-my $protocole = "tcp";
-
 my $printmenu = "Menu\n
 1. Envoi de courriels\n
 2. Consultation de courriels\n
@@ -51,8 +50,6 @@ sub checkuservalidity
 
 	my $configfile = '/config.txt';
 	$path = "$path$username$configfile";
-
-	opendir (my $dh, $directory);
 
 	open(my $fh, '<:encoding(UTF-8)', $path)
   		or die return 0;
@@ -120,7 +117,7 @@ sub startserveur
 {
 	my $port = $_[0];
 
-	$serveur = IO::Socket::INET->new( Proto => $protocole,
+	my $serveur = IO::Socket::INET->new( Proto => $protocole,
 
 	LocalPort => $port,
 
@@ -145,9 +142,9 @@ sub creerfichiermessage
 	(my $destadruser, my $destadrdomain) = split ('@',$destadr);
 	(my $ccadruser, my $ccadrdomain) = split ('@',$ccadr);
 
-	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+	(my $sec,my $min,my $hour,my $mday,my $mon,my $year,my $wday,my $yday,my $isdst) = localtime();
 
-	$msg = MIME::Lite->new(
+	my $msg = MIME::Lite->new(
 	From => "$username@$adresseApplication",
 	To => "$destadr",
 	Cc => "$ccadr",
@@ -182,7 +179,7 @@ sub creerfichiermessage
 	if ($ccadrdomain eq $adresseApplication)
 	{
 		my $ccuser = $ccadruser;
-		if (&userexist($dccuser) eq 0)
+		if (&userexist($ccuser) eq 0)
 		{
 			$ccuser = "DESTERREUR";
 		}
@@ -219,7 +216,7 @@ sub getlistfileinpath
 	opendir my $dir, "$path";
 	my @files = readdir $dir;
 
-	foreach $file (@files)
+	foreach my $file (@files)
 	{
 		if ($file =~ /.txt$/)
 		{
@@ -257,7 +254,6 @@ sub getlistfilesend
 sub gettaillefichier
 {
 	my $filename = $_[0];
-	$myresult = GetOptions ( "filename=s" => \$filename );
 	my $filesize = stat($filename)->size;
 	$filesize
 }
@@ -297,12 +293,12 @@ sub main
   	while (1)
   	{
   		print "En attente d'une connection\n";
-  		$connection = $serveur->accept();
+  		my $connection = $server->accept();
 		my $client_address = $connection->peerhost();
    	 	my $client_port = $connection->peerport();
     	print "connection reçu de $client_address:$client_port\n";
 
-		my $desirequitter = false;
+		my $desirequitter = 0;
 
 		if (&askclientidentification($connection))
 		{
@@ -350,10 +346,10 @@ sub main
 					{
 						$connection->send("OK");
 						my @stats = &getstatsfichiers(@listoffile);
-						$connection->send(@stats[2]);
+						$connection->send($stats[2]);
 						$connection->recv(my $choix, 1024);
 	
-						open FICHIER, "<@listoffile[$choix-1]";
+						open FICHIER, "<$listoffile[$choix-1]";
 						undef $/; #Pour lire tous le fichier;
 						my $contenuFichier = <FICHIER>;
 						close FICHIER;
@@ -375,8 +371,8 @@ sub main
 					my @statsdest = &getstatsfichiers(@listedest);
 					my @statssend = &getstatsfichiers(@listesend);
 
-					my $nbTotal = @statscc[0] + @statsdest[0] + @statssend[0];
-					my $tailleTotale = @statscc[1] + @statsdest[1] + @statssend[1];
+					my $nbTotal = $statscc[0] + $statsdest[0] + $statssend[0];
+					my $tailleTotale = $statscc[1] + $statsdest[1] + $statssend[1];
 					my $stringToSend = "
 Voici les statistiques de votre compte:\n
 ---------------------------------------\n
@@ -385,20 +381,20 @@ Nombre de messages : $nbTotal \n
 Taille : $tailleTotale\n
 ---------------------------------------\n
 MESSAGES ENVOYÉS\n
-Nombre de messages : @statssend[0]\n
-Taille : @statssend[1]\n
+Nombre de messages : $statssend[0]\n
+Taille : $statssend[1]\n
 Liste des sujets : \n
 $statssend[2]
 ---------------------------------------\n
 MESSAGES REÇUS\n
-Nombre de messages : @statsdest[0]\n
-Taille : @statsdest[1]\n
+Nombre de messages : $statsdest[0]\n
+Taille : $statsdest[1]\n
 Liste des sujets : \n
 $statsdest[2]
 ---------------------------------------\n
 MESSAGES COPIE CONFORME\n
-Nombre de messages : @statscc[0]\n
-Taille : @statscc[1]\n
+Nombre de messages : $statscc[0]\n
+Taille : $statscc[1]\n
 Liste des sujets : \n
 $statscc[2]
 ---------------------------------------\n";
