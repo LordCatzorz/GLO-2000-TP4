@@ -46,8 +46,17 @@ sub readtransmission
 	my $connection = $_[0];
 	my $transmission = readline($connection);
 	#print "Received : $transmission\n";
-	$transmission =~ s/\!EOT\!$//;
-	$transmission;
+	if ($transmission =~ /\!EOT\!/ )
+	{
+		$transmission =~ s/\!EOT\!$//;
+		$transmission;
+	}
+	else
+	{
+		print "Erreur lors de la lecture. Fermeture de la connection.\n";
+		&sendtransmission($connection, "Erreur lors de la lecture. Fermeture de la connection.");
+		$connection->close;
+	}
 }
 
 sub sendtransmission
@@ -375,14 +384,14 @@ sub main
 			$connection->flush;
 			while ($connection->connected)
 			{
-				print "Affichage menu. Attente d'action.";
+				print "Affichage menu. Attente d'action.\n";
 				$connection->flush();
 				&sendtransmission($connection, $printmenu);
 				my $choixMenu = &readtransmission($connection);
 	
 				if ($choixMenu == "1")
 				{
-					print "Mode 1 sélectionné. Envoie de courriels.";
+					print "Mode 1 sélectionné. Envoie de courriels.\n";
 					if ($username ne "admin")
 					{
 						&sendtransmission($connection, "OK");
