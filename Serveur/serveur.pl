@@ -40,8 +40,26 @@ my $username = "";
 
 &main;
 
-sub checkuservalidity
+sub readtransmission
+{
+	local $/ = "!EOT!";
+	my $connection = $_[0];
+	my $transmission = readline($connection);
+	#print "Received : $transmission\n";
+	$transmission =~ s/\!EOT\!$//;
+	$transmission;
+}
 
+sub sendtransmission
+{
+	local $/ = "!EOT!";
+	my $connection = $_[0];
+	my $transmission = $_[1];
+	#print "sent : $transmission!EOT!\n";
+	print $connection "$transmission!EOT!";
+}
+
+sub checkuservalidity
 {
 	my ($name, $path, $suffix) = File::Basename::fileparse($0);
 
@@ -66,9 +84,7 @@ sub checkuservalidity
 }
 
 sub stringcontains
-
 {
-
 	my $mystring = $_[0];
 
 	my $searchedtext = $_[1];
@@ -80,21 +96,17 @@ sub stringcontains
 
 
 sub askclientidentification
-
 {
 	my $clientconnection = $_[0];
-
 	
 	my $cipheredpassword = "";
-
 	
-	$clientconnection->send("Veuillez vous identifier");
+	&sendtransmission($clientconnection, "Veuillez vous identifier");
+	&sendtransmission($clientconnection, "Nom d'utilisateur:");
+	$username = &readtransmission($clientconnection);
 
-	$clientconnection->send("Nom d'utilisateur:");
-	$clientconnection->recv($username, 1024);
-
-	$clientconnection->send("Mot de passe:");
-	$clientconnection->recv($cipheredpassword, 1024);
+	&sendtransmission($clientconnection, "Mot de passe:");
+	$cipheredpassword = &readtransmission($clientconnection);
 
 	my $successfulidentification = checkuservalidity($username, $cipheredpassword);
 
@@ -113,7 +125,6 @@ sub userexist
 }
 
 sub startserveur
-
 {
 	my $port = $_[0];
 
@@ -359,47 +370,47 @@ sub main
 
 		if (&askclientidentification($connection))
 		{
-			$connection->send("OK");
-			$connection->send("Authentification réussi.\nBonjour $username\n");
+			&sendtransmission($connection, "OK");
+			&sendtransmission($connection, "Authentification réussi.\nBonjour $username");
 			$connection->flush;
 			while ($connection->connected)
 			{
-				print "Affichage menu. Attente d'action.\n";
+				print "Affichage menu. Attente d'action.";
 				$connection->flush();
-				$connection->send($printmenu);
-				$connection->recv(my $choixMenu, 1024);
+				&sendtransmission($connection, $printmenu);
+				my $choixMenu = &readtransmission($connection);
 	
 				if ($choixMenu == "1")
 				{
-					print "Mode 1 sélectionné. Envoie de courriels.\n";
+					print "Mode 1 sélectionné. Envoie de courriels.";
 					if ($username ne "admin")
 					{
-						$connection->send("OK");
+						&sendtransmission($connection, "OK");
 						
-						$connection->send("Quelle est l'adresse de destination:");
+						&sendtransmission($connection, "Quelle est l'adresse de destination:");
 						my $destAdr = "";
-						$connection->recv($destAdr, 1024);																																													
+						$destAdr = &readtransmission($connection);																																													
 				
-						$connection->send("Quelle est l'adresse en copie conforme:");
+						&sendtransmission($connection, "Quelle est l'adresse en copie conforme:");
 						my $ccAdr = "";
-						$connection->recv($ccAdr, 1024);
+						$ccAdr = &readtransmission($connection);
 				
-						$connection->send("Quel est le sujet:");
+						&sendtransmission($connection, "Quel est le sujet:");
 						my $sujet = "";
-						$connection->recv($sujet, 1024);
+						$sujet = &readtransmission($connection);
 				
-						$connection->send("Quel est le corps du message:");
+						&sendtransmission($connection, "Quel est le corps du message:");
 						my $corps = "";
-						$connection->recv($corps, 1048576);
+						$corps = &readtransmission($connection);
 		
 						
 						&creerfichiermessage($destAdr, $ccAdr, $sujet, $corps);
 						
-						$connection->send("Message envoyé");
+						&sendtransmission($connection, "Message envoyé");
 					}	
 					else
 					{
-						$connection->send("Les administrateurs ne peuvent pas envoyer de courriels");
+						&sendtransmission($connection, "Les administrateurs ne peuvent pas envoyer de courriels");
 					}
 	
 				}
@@ -410,21 +421,21 @@ sub main
 					
 					if (scalar @listoffile > 0)
 					{
-						$connection->send("OK");
+						&sendtransmission($connection, "OK");
 						my @stats = &getstatsfichiers(@listoffile);
-						$connection->send($stats[2]);
-						$connection->recv(my $choix, 1024);
+						&sendtransmission($connection, $stats[2]);
+						my $choix = &readtransmission($connection);
 	
 						open FICHIER, "<$listoffile[$choix-1]";
 						undef $/; #Pour lire tous le fichier;
 						my $contenuFichier = <FICHIER>;
 						close FICHIER;
 						$/ = "\n";
-						$connection->send($contenuFichier);
+						&sendtransmission($connection, $contenuFichier);
 					}
 					else
 					{
-						$connection->send("Erreur: Aucun courriel reçu");
+						&sendtransmission($connection, "Erreur: Aucun courriel reçu");
 					}
 				}
 				elsif ($choixMenu == "3")
@@ -432,7 +443,7 @@ sub main
 					print "Mode 3 sélectionné. Consultation de statistq¸ues.\n";
 					my $stringToSend = &getstatsutilisateur($username);
 				
-					$connection->send($stringToSend);
+					&sendtransmission($connection, $stringToSend);
 				}
 				elsif ($choixMenu == "4")
 				{
@@ -442,7 +453,7 @@ sub main
 						my @listofusers = &getlistusers;
 						if (scalar @listofusers > 0)
 						{
-							$connection->send("OK");
+							&sendtransmission($connection, "OK");
 							my $incrementor = 0;
 							my $sentList = "";
 							foreach my $user (@listofusers)
@@ -450,18 +461,18 @@ sub main
 								++$incrementor;
 								$sentList = "$sentList\n$incrementor - $user";
 							}
-							$connection->send($sentList);
-							$connection->recv(my $choixUtilisateur,1024);
-							$connection->send(&getstatsutilisateur($listofusers[$choixUtilisateur - 1]));
+							&sendtransmission($connection, $sentList);
+							my $choixUtilisateur = &readtransmission($connection);
+							&sendtransmission($connection, &getstatsutilisateur($listofusers[$choixUtilisateur - 1]));
 						}
 						else
 						{
-							$connection->send("Aucun utilisateur disponible");
+							&sendtransmission($connection, "Aucun utilisateur disponible");
 						}
 					}
 					else
 					{
-						$connection->send("Disponible pour les administrateurs seulement");
+						&sendtransmission($connection, "Disponible pour les administrateurs seulement");
 					}
 				}
 				elsif ($choixMenu == "5")
@@ -472,8 +483,9 @@ sub main
 		}
 		else
 		{
-			$connection->send("Authentification échouée.\nFermeture de la connection.");
+			&sendtransmission($connection, "Authentification échouée.\nFermeture de la connection.");
 			$connection->close();
 		}	
 	}
 }
+

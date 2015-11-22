@@ -5,7 +5,7 @@ my $username = "";
 my $password = "";
 
 my $server = IO::Socket::INET->new( Proto => "tcp",
-										PeerAddr => "localhost",
+										PeerAddr => "192.168.248.129",
 										PeerPort => 2559);
 
 $server->recv(my $firstServerMessage, 1024);

@@ -39,32 +39,51 @@ or die "Impossible de se connecter sur le port $port à l'adresse $host";
 
 $connection->autoflush;
 
-$connection->recv(my $premierMessageServeur, 1024);
+sub readtransmission
+{
+	local $/ = "!EOT!";
+	my $connection = $_[0];
+	my $transmission = readline($connection);
+	#print "Received : $transmission\n";
+	$transmission =~ s/\!EOT\!$//;
+	$transmission;
+}
+
+sub sendtransmission
+{
+	local $/ = "!EOT!";
+	my $connection = $_[0];
+	my $transmission = $_[1];
+	#print "sent : $transmission!EOT!\n";
+	print $connection "$transmission!EOT!";
+}
+
+my $premierMessageServeur = &readtransmission($connection); # readline($connection);
 print "$premierMessageServeur\n";
 
-$connection->recv(my $messageServeurDemandeNomUtilisateur, 1024);
+my $messageServeurDemandeNomUtilisateur = &readtransmission($connection); #readline($connection);
 while($username eq "")
 {
 	print "$messageServeurDemandeNomUtilisateur\n";
 	chomp($username = <STDIN>); 
 }
-$connection->send($username);
-$connection->recv(my $messageServeurDemandeMotDePasse, 1024);
+&sendtransmission($connection, $username);
+my $messageServeurDemandeMotDePasse = &readtransmission($connection);
 while($password eq "")
 {
 	print "$messageServeurDemandeMotDePasse\n";
 	chomp($password = <STDIN>);
 }
 my $hashpassword = md5_hex($password);
-$connection->send($hashpassword);
-$connection->recv(my $messageServeurAuthentificationReussi, 1024);
+&sendtransmission($connection, $hashpassword);
+my $messageServeurAuthentificationReussi = &readtransmission($connection);
 if ($messageServeurAuthentificationReussi eq "OK")
 {
-	$connection->recv(my $messageServeurBienvenue, 1024);
+	my $messageServeurBienvenue = &readtransmission($connection);
 	print "$messageServeurBienvenue\n";
 	while (1)
 	{
-		$connection->recv(my $messageServeurMenu, 1024);
+		my $messageServeurMenu = &readtransmission($connection);
 		while($choixMenu < 1 || $choixMenu > 5)
 		{
 			print "$messageServeurMenu\n";
@@ -72,45 +91,45 @@ if ($messageServeurAuthentificationReussi eq "OK")
 			chomp($choixMenu = <STDIN>);
 		
 		}
-		$connection->send($choixMenu);
+		&sendtransmission($connection, $choixMenu);
 
 		if ($choixMenu == 1)
 		
 		{
-			$connection->recv(my $peutEnvoyerCourriel, 1024);
+			my $peutEnvoyerCourriel = &readtransmission($connection);
 			if ($peutEnvoyerCourriel eq "OK")
 			{
 				#Adresse A:
-				$connection->recv(my $messageServeurDemandeAdresseA, 1024);
+				my $messageServeurDemandeAdresseA = &readtransmission($connection);
 				print "$messageServeurDemandeAdresseA\n";
 				chomp(my $adresseA = <STDIN>);
-				$connection->send($adresseA);
+				&sendtransmission($connection, $adresseA);
 
 				#Adresse CC:
-				$connection->recv(my $messageServeurDemandeAdresseCC, 1024);
+				my $messageServeurDemandeAdresseCC = &readtransmission($connection);
 				print "$messageServeurDemandeAdresseCC\n";
 				chomp(my $adresseCC = <STDIN>);
-				$connection->send($adresseCC);
+				&sendtransmission($connection, $adresseCC);
 
 				#Sujet:
-				$connection->recv(my $messageServeurDemandeSujet, 1024);
+				my $messageServeurDemandeSujet = &readtransmission($connection);
 				print "$messageServeurDemandeSujet\n";
 				chomp(my $sujetCouriel = <STDIN>);
-				$connection->send($sujetCouriel);
+				&sendtransmission($connection, $sujetCouriel);
 
 				#Corps:
-				$connection->recv(my $messageServeurDemandeCorps, 1024);
+				my $messageServeurDemandeCorps = &readtransmission($connection);
 				print "$messageServeurDemandeCorps\n";
 				chomp(my $corpsCourriel = <STDIN>);
-				$connection->send($corpsCourriel);
+				&sendtransmission($connection, $corpsCourriel);
 
 				#confirmation
-				$connection->recv(my $messageServeurConfirmationEnvoie, 1024);
+				my $messageServeurConfirmationEnvoie = &readtransmission($connection);
 				print "$messageServeurConfirmationEnvoie\n";
 			}
 			else
 			{
-				print "$peutEnvoyerCourriel\n";
+				print "$peutEnvoyerCourriel";
 			}
 
 			print "Appuyez sur Entrée pour continuer...";
@@ -121,15 +140,15 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		
 		elsif ($choixMenu == 2)	
 		{
-			$connection->recv(my $peutConsulterCourriel, 1024);
+			my $peutConsulterCourriel = &readtransmission($connection);
 			if ($peutConsulterCourriel eq "OK")
 			{
-				$connection->recv(my $listeSujetsCourriels, 1048576);
+				my $listeSujetsCourriels = &readtransmission($connection);
 				print "Voici la liste des sujets:\n$listeSujetsCourriels\nQuel sujet voulez-vous consulter?\n";
 				chomp(my $choixSujetCourriel = <STDIN>);
-				$connection->send($choixSujetCourriel);
+				&sendtransmission($connection, $choixSujetCourriel);
 	
-				$connection->recv(my $contenuCourriel, 1048576);
+				my $contenuCourriel = &readtransmission($connection);
 				print "$contenuCourriel\n";
 	
 				print "Appuyez sur Entrée pour continuer...";
@@ -145,7 +164,7 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		elsif ($choixMenu == 3)
 		
 		{
-			$connection->recv(my $statistiques, 1048576);
+			my $statistiques = &readtransmission($connection);
 			print $statistiques;
 			print "Appuyez sur Entrée pour continuer...";
 			<STDIN>;
@@ -155,16 +174,16 @@ if ($messageServeurAuthentificationReussi eq "OK")
 		elsif ($choixMenu == 4)
 		
 		{
-			$connection->recv(my $peutConsulterAdmin, 1024);
+			my $peutConsulterAdmin = &readtransmission($connection);
 
 			if ($peutConsulterAdmin eq "OK")
 			{
-				$connection->recv(my $listeutilisateur, 1048576);
+				my $listeutilisateur = &readtransmission($connection);
 				print "Voici la liste des utilisateurs:\n$listeutilisateur\nQuel utilisateur voulez-vous consulter les statistiques?\n";
 				chomp(my $choixUtilisateur = <STDIN>);
-				$connection->send($choixUtilisateur);
+				&sendtransmission($connection, $choixUtilisateur);
 
-				$connection->recv(my $statistiquesutilisateur, 1048576);
+				my $statistiquesutilisateur = &readtransmission($connection);
 				print "$statistiquesutilisateur\n";
 
 			}
@@ -191,5 +210,3 @@ else
 {
 	print "Connection échouée\n";
 }
-
-  
