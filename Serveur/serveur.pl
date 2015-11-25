@@ -6,8 +6,7 @@ use warnings;
 #Ajout des librairies
 
 use IO::Socket;
-
-#use Digest::MD5 qw(md5_hex);
+use FindBin;
 
 use MIME::Lite;
 use File::Basename qw();
@@ -23,8 +22,6 @@ my $protocole = "tcp";
 my $port = 2559;
 
 my $input = "";
-
-my $configfilepath = "/config/config.txt";
 
 my $adresseApplication = "reseauglo.ca";
 #my $userconfigfilepath = "/user/";
@@ -126,7 +123,7 @@ sub userexist
 {
 	my $searcheduser = $_[0];
 
-	if (-d "./$searcheduser")
+	if (-d "$FindBin::Bin/$searcheduser")
 	{
 		return 1
 	}
@@ -184,7 +181,7 @@ sub creerfichiermessage
 		{
 			$destuser = "DESTERREUR";
 		}
-		my $path = "./$destuser/recu/dest/";
+		my $path = "$FindBin::Bin/$destuser/recu/dest/";
 		eval{make_path($path)};
 		my $file = "$path$filename";
 		open FILE, '>'.$file;
@@ -203,7 +200,7 @@ sub creerfichiermessage
 		{
 			$ccuser = "DESTERREUR";
 		}
-		my $path = "./$ccuser/recu/cc/";
+		my $path = "$FindBin::Bin/$ccuser/recu/cc/";
 		eval{make_path($path)};
 		my $file = "$path$filename";
 		open FILE, '>'.$file;
@@ -215,7 +212,7 @@ sub creerfichiermessage
 		$sendwithsmtp = 1;
 	}
 
-	my $path = "./$username/envoye/";
+	my $path = "$FindBin::Bin/$username/envoye/";
 	eval{make_path($path)};
 	my $file = "$path$filename";
 	open FILE, '>'.$file;
@@ -250,7 +247,7 @@ sub getlistfileinpath
 
 sub getlistusers
 {
-	opendir my $dir, "./";
+	opendir my $dir, $FindBin::Bin;
 	my @files = readdir $dir;
 	my @listofuser;
 	
@@ -273,17 +270,17 @@ sub getlistfilereceived
 
 sub getlistfilecc
 {
-	&getlistfileinpath("./$_[0]/recu/cc");
+	&getlistfileinpath("$FindBin::Bin/$_[0]/recu/cc");
 }
 
 sub getlistfiledest
 {
-	&getlistfileinpath("./$_[0]/recu/dest");
+	&getlistfileinpath("$FindBin::Bin/$_[0]/recu/dest");
 }
 
 sub getlistfilesend
 {
-	&getlistfileinpath("./$_[0]/envoye");
+	&getlistfileinpath("$FindBin::Bin/$_[0]/envoye");
 }
 
 sub gettaillefichier
