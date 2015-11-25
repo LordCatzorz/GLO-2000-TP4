@@ -84,7 +84,7 @@ if ($messageServeurAuthentificationReussi eq "OK")
 	while (1)
 	{
 		my $messageServeurMenu = &readtransmission($connection);
-		while($choixMenu < 1 || $choixMenu > 5)
+		while($choixMenu eq "" || $choixMenu < 1 || $choixMenu > 5)
 		{
 			print "$messageServeurMenu\n";
 	
@@ -101,26 +101,42 @@ if ($messageServeurAuthentificationReussi eq "OK")
 			{
 				#Adresse A:
 				my $messageServeurDemandeAdresseA = &readtransmission($connection);
-				print "$messageServeurDemandeAdresseA\n";
-				chomp(my $adresseA = <STDIN>);
+				my $adresseA = "";
+				while ($adresseA eq "")
+				{
+					print "$messageServeurDemandeAdresseA\n";
+					chomp($adresseA = <STDIN>);
+				}
 				&sendtransmission($connection, $adresseA);
 
 				#Adresse CC:
 				my $messageServeurDemandeAdresseCC = &readtransmission($connection);
-				print "$messageServeurDemandeAdresseCC\n";
-				chomp(my $adresseCC = <STDIN>);
+				my $adresseCC = "";
+				while ($adresseCC eq "")
+				{
+					print "$messageServeurDemandeAdresseCC\n";
+					chomp($adresseCC = <STDIN>);
+				}
 				&sendtransmission($connection, $adresseCC);
 
 				#Sujet:
 				my $messageServeurDemandeSujet = &readtransmission($connection);
-				print "$messageServeurDemandeSujet\n";
-				chomp(my $sujetCouriel = <STDIN>);
-				&sendtransmission($connection, $sujetCouriel);
+				my $sujetCourriel = "";
+				while ($sujetCourriel eq "")
+				{
+					print "$messageServeurDemandeSujet\n";
+					chomp($sujetCourriel = <STDIN>);
+				}
+				&sendtransmission($connection, $sujetCourriel);
 
 				#Corps:
 				my $messageServeurDemandeCorps = &readtransmission($connection);
-				print "$messageServeurDemandeCorps\n";
-				chomp(my $corpsCourriel = <STDIN>);
+				my $corpsCourriel = "";
+				while ($corpsCourriel eq "")
+				{
+					print "$messageServeurDemandeCorps\n";
+					chomp($corpsCourriel = <STDIN>);
+				}
 				&sendtransmission($connection, $corpsCourriel);
 
 				#confirmation
