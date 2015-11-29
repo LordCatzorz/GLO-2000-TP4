@@ -1,0 +1,12 @@
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 3.030 (F2.85; T2.09; A2.13; B3.14; Q3.13)
+Date: Sun, 29 Nov 2015 01:49:56 -0500
+From: user3@reseauglo.ca
+To: user1@reseauglo.ca
+Cc: admin@reseauglo.ca
+Subject: Absence
+
+Je serai absent demain.
