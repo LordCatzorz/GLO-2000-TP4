@@ -1,0 +1,7 @@
+﻿
+Bon, sur Linux, il semble y avoir un problème avec Socket->flush
+
+user1 -> lundi
+user2 -> mardi
+user3 -> mercredi
+admin -> reseauGlo2015
